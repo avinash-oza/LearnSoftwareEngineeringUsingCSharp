@@ -2,33 +2,59 @@
 
 void Main()
 {
-	var x = Enumerable.Range(0, 100);
-	foreach(var y in x)
+	
+	var batchIterator = Enumerable.Range(0, 95).myBatch(10);
+	foreach(var batchList in batchIterator)
 	{
-		Console.WriteLine(y);
+		foreach (var element in batchList)
+		{
+			Console.WriteLine(element);
+		}
 	}
 }
 
 
 
-public static class MyExtensionMethods
+
+public static class ExtensionMethods
 {
-	public static IEnumerable<IEnumerable<T>> Batch(this IEnumerable<T> resultIterator, int batchSize=100)
+	public static IEnumerable<IEnumerable<T>> myBatch<T>(this IEnumerable<T> inputEnumerable, int batchSize)
 	{
-		
+		List<T> tempList = new List<T> ();
+	
+		foreach(var element in inputEnumerable)
+		{	
+			tempList.Add(element);
+			if (tempList.Count == batchSize)
+			{
+				Console.WriteLine("BATCH");
+				yield return tempList;
+				tempList = new List<T> ();
+			}
+		}
+		yield return tempList;
 	}
 }
 
-// Define other methods, classes and namespaces here
 
+class FixedSizeEnumerable : IEnumerable<T>
+{
+	int _batchSize;
+	IEnumerable _enumerable;
+	
+	public FixedSizeEnumerable(IEnumerable originalEnumerable, int batchSize)
+	{
+		_batchSize = batchSize;
+		_enumerable = originalEnumerable;
+	}
+	
+	public IEnumerator<T> GetEnumerator()
+	{
+		throw new NotImplementedException();
+	}
 
-//class InnerIterator: IEnumerable<int>
-//{
-//	
-//}
-//
-//class BatchIterator: IEnumerable<int>
-//{
-//	IEnumerable myItems = Enumerable.Range(0, 100);
-//	
-//}
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		throw new NotImplementedException();
+	}
+}
